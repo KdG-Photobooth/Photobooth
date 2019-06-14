@@ -34,11 +34,12 @@ class FinalPage extends React.Component {
   }
 
   sendEmail = async (e) => {
+    e.preventDefault();
+    e.persist();
     await checkRefresh();
     const { album, accessToken, format } = this.props;
     const { emailsAreValid } = this.state;
 
-    e.preventDefault();
     console.log('Sending mail!');
 
     let emails = [];
