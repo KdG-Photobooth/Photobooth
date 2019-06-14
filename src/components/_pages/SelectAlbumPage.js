@@ -33,7 +33,7 @@ class SelectAbumPage extends React.Component {
 
         console.log(resp);
 
-        const albums = resp.data.sharedAlbums;
+        const albums = resp.data.sharedAlbums.filter(({ shareInfo, mediaItemsCount }) => parseInt(mediaItemsCount, 10) > 0 && shareInfo);
 
         this.setState({ albums });
       } catch (error) {
