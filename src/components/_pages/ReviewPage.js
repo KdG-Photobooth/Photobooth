@@ -49,7 +49,7 @@ class ReviewPage extends React.Component {
       console.log(resp);
 
       if (resp.status === 200) {
-        history.push('/final');
+        history.push('/final', { media: resp.data.newMediaItemResults[0].mediaItem });
       } else {
         console.log(resp);
       }

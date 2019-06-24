@@ -33,12 +33,32 @@ class FinalPage extends React.Component {
     this.setState({ [e.target.name]: e.target.value });
   }
 
+  getImage = async id => new Promise(async (resolve, reject) => {
+    const { accessToken } = this.props;
+
+    try {
+      const resp = await axios.get(`https://photoslibrary.googleapis.com/v1/mediaItems/${id}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-type': 'application/json',
+        },
+      });
+      resolve(resp.data);
+    } catch (error) {
+      reject(error);
+    }
+  })
+
   sendEmail = async (e) => {
     e.preventDefault();
     e.persist();
     await checkRefresh();
-    const { album, accessToken, format } = this.props;
+    const {
+      album, accessToken, format, history,
+    } = this.props;
     const { emailsAreValid } = this.state;
+
+    const media = await this.getImage(history.location.state.media.id);
 
     console.log('Sending mail!');
 
@@ -74,9 +94,16 @@ class FinalPage extends React.Component {
           email: e.target.emails.value,
           albumLink: album.shareInfo.shareableUrl,
           format,
+          imageLink: `${media.baseUrl}=w1200-h800`,
         });
 
-        if (resp.status === 200) this.setState({ emailIsSending: false, emailIsSend: true, errorSendingEmail: false });
+        if (resp.status === 200) {
+          this.setState({
+            emailIsSending: false, emailIsSend: true, errorSendingEmail: false, emails: '',
+          });
+
+          history.push('/');
+        }
       } catch (error) {
         console.log('Send Email', error.response);
         this.setState({ emailIsSending: false, emailIsSend: false, errorSendingEmail: true });
