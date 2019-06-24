@@ -33,17 +33,38 @@ class FinalPage extends React.Component {
     this.setState({ [e.target.name]: e.target.value });
   }
 
-  getImage = async id => new Promise(async (resolve, reject) => {
-    const { accessToken } = this.props;
+  uploadFile = async (file, format) => {
+    const url = 'https://api.cloudinary.com/v1_1/perjor/upload';
+    const uploadPreset = 'sjvk75pb';
+
+    const data = new FormData();
+    data.append('file', file);
+    data.append('upload_preset', uploadPreset);
+    data.append('tags', 'photobooth');
+    data.append('resource_type', format === 'single' ? 'image' : 'video');
 
     try {
-      const resp = await axios.get(`https://photoslibrary.googleapis.com/v1/mediaItems/${id}`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Content-type': 'application/json',
-        },
-      });
-      resolve(resp.data);
+      const resp = await axios.post(url, data);
+      console.log('TCL: uploadFrame -> resp', resp);
+
+      return resp.data.url;
+    } catch (error) {
+      console.log('TCL: uploadFiles -> error', error);
+
+      return error;
+    }
+  }
+
+  getImage = async () => new Promise(async (resolve, reject) => {
+    const { format } = this.props;
+
+    try {
+      const respFile = await axios.get(`${process.env.REACT_APP_SERVER_URL}/file?format=${format}`);
+      console.log('TCL: FinalPage -> respFile', respFile);
+
+      const resp = await this.uploadFile(respFile.data, format);
+
+      resolve(resp);
     } catch (error) {
       reject(error);
     }
@@ -57,8 +78,6 @@ class FinalPage extends React.Component {
       album, accessToken, format, history,
     } = this.props;
     const { emailsAreValid } = this.state;
-
-    const media = await this.getImage(history.location.state.media.id);
 
     console.log('Sending mail!');
 
@@ -88,13 +107,14 @@ class FinalPage extends React.Component {
       this.setState({ emailIsSending: true });
 
       try {
+        const file = await this.getImage(history.location.state.media.id);
         const resp = await axios.post(`${process.env.REACT_APP_SERVER_URL}/sendPictureToEmail`, {
           token: accessToken,
           title: album.title,
           email: e.target.emails.value,
           albumLink: album.shareInfo.shareableUrl,
           format,
-          imageLink: `${media.baseUrl}=w1200-h800`,
+          imageLink: file,
         });
 
         if (resp.status === 200) {
