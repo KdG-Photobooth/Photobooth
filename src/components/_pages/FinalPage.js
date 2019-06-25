@@ -34,8 +34,8 @@ class FinalPage extends React.Component {
   }
 
   uploadFile = async (file, format) => {
-    const url = 'https://api.cloudinary.com/v1_1/perjor/upload';
-    const uploadPreset = 'sjvk75pb';
+    const url = 'https://api.cloudinary.com/v1_1/kdgphotobooth/upload';
+    const uploadPreset = 'yvpxxt6i';
 
     const data = new FormData();
     data.append('file', file);
