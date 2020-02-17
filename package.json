@@ -34,7 +34,7 @@
     "redux": "^4.0.1",
     "simple-ssh": "^1.0.0",
     "ssh2": "^0.8.4",
-    "yarn": "^1.17.3"
+    "yarn": "^1.22.0"
   },
   "scripts": {
     "css": "node-sass-chokidar ./src/assets/sass -o ./public/style/ --watch",
